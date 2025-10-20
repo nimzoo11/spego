@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 바둑 베팅 게임</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header>
+            <h1>🎮 AI 바둑 베팅 게임</h1>
+            <div class="user-info">
+                <div class="money-display">
+                    💰 보유금액: <span id="userMoney">10000</span>원
+                </div>
+                <button id="chargeBtn" class="btn-charge">충전하기</button>
+            </div>
+        </header>
+
+        <!-- 메인 게임 영역 -->
+        <div class="game-container">
+            <!-- 왼쪽: 바둑판 -->
+            <div class="board-section">
+                <div class="game-status">
+                    <h2 id="gameStatus">게임 대기중...</h2>
+                    <div class="timer">
+                        <span id="countdown">10</span>초 후 시작
+                    </div>
+                </div>
+
+                <div class="ai-info">
+                    <div class="ai-player black">
+                        <div class="ai-stone black-stone"></div>
+                        <span>AI-A (흑)</span>
+                        <div class="ai-status" id="blackStatus">대기중</div>
+                    </div>
+                    <div class="board-wrapper">
+                        <svg id="badukBoard" width="400" height="400"></svg>
+                    </div>
+                    <div class="ai-player white">
+                        <div class="ai-stone white-stone"></div>
+                        <span>AI-B (백)</span>
+                        <div class="ai-status" id="whiteStatus">대기중</div>
+                    </div>
+                </div>
+
+                <div class="score-display" id="scoreDisplay" style="display: none;">
+                    <div class="score-item">
+                        <span>흑(AI-A):</span>
+                        <strong id="blackScore">0</strong>점
+                    </div>
+                    <div class="score-item">
+                        <span>백(AI-B):</span>
+                        <strong id="whiteScore">0</strong>점
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 베팅 영역 -->
+            <div class="betting-section">
+                <h3>베팅하기</h3>
+                
+                <div class="bet-options">
+                    <div class="bet-option" id="betBlack">
+                        <div class="bet-header">
+                            <h4>AI-A 승리</h4>
+                            <span class="odds">1.95배</span>
+                        </div>
+                        <div class="bet-stats">
+                            베팅액: <span id="blackBetAmount">0</span>원
+                        </div>
+                    </div>
+
+                    <div class="bet-option" id="betDraw">
+                        <div class="bet-header">
+                            <h4>무승부</h4>
+                            <span class="odds highlight">2.9배</span>
+                        </div>
+                        <div class="bet-stats">
+                            베팅액: <span id="drawBetAmount">0</span>원
+                        </div>
+                    </div>
+
+                    <div class="bet-option" id="betWhite">
+                        <div class="bet-header">
+                            <h4>AI-B 승리</h4>
+                            <span class="odds">1.95배</span>
+                        </div>
+                        <div class="bet-stats">
+                            베팅액: <span id="whiteBetAmount">0</span>원
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bet-input-section" id="betInputSection">
+                    <label>베팅 금액:</label>
+                    <input type="number" id="betAmount" min="1000" max="100000" step="1000" value="1000">
+                    <div class="quick-bet-buttons">
+                        <button class="btn-quick" data-amount="1000">1천</button>
+                        <button class="btn-quick" data-amount="5000">5천</button>
+                        <button class="btn-quick" data-amount="10000">1만</button>
+                        <button class="btn-quick" data-amount="50000">5만</button>
+                    </div>
+                    <button id="cancelBetBtn" class="btn-cancel" style="display: none;">베팅 취소</button>
+                </div>
+
+                <div class="current-bet" id="currentBet" style="display: none;">
+                    <h4>현재 베팅</h4>
+                    <div class="bet-info">
+                        <div>선택: <strong id="betChoice">-</strong></div>
+                        <div>금액: <strong id="betMoney">0</strong>원</div>
+                        <div>예상 당첨금: <strong id="expectedWin">0</strong>원</div>
+                    </div>
+                </div>
+
+                <!-- 베팅 통계 -->
+                <div class="betting-stats">
+                    <h4>전체 베팅 현황</h4>
+                    <div class="stats-bar">
+                        <div class="bar-segment black" id="blackBar" style="width: 33.33%">
+                            <span id="blackPercent">33%</span>
+                        </div>
+                        <div class="bar-segment draw" id="drawBar" style="width: 33.33%">
+                            <span id="drawPercent">33%</span>
+                        </div>
+                        <div class="bar-segment white" id="whiteBar" style="width: 33.34%">
+                            <span id="whitePercent">34%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 게임 기록 -->
+                <div class="game-history">
+                    <h4>최근 게임 결과</h4>
+                    <div id="historyList" class="history-list">
+                        <div class="history-empty">게임 기록이 없습니다</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 사용자 통계 -->
+        <div class="user-stats">
+            <h3>내 통계</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <label>총 베팅 금액</label>
+                    <strong id="totalBet">0</strong>원
+                </div>
+                <div class="stat-item">
+                    <label>총 당첨 금액</label>
+                    <strong id="totalWin">0</strong>원
+                </div>
+                <div class="stat-item">
+                    <label>순손익</label>
+                    <strong id="netProfit" class="neutral">0</strong>원
+                </div>
+                <div class="stat-item">
+                    <label>승률</label>
+                    <strong id="winRate">0</strong>%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 충전 모달 -->
+    <div id="chargeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>게임머니 충전</h2>
+            <p class="modal-description">가상 충전입니다. 원하는 금액을 즉시 지급받을 수 있습니다.</p>
+            <div class="charge-options">
+                <button class="btn-charge-option" data-amount="1000">1,000원</button>
+                <button class="btn-charge-option" data-amount="5000">5,000원</button>
+                <button class="btn-charge-option" data-amount="10000">10,000원</button>
+                <button class="btn-charge-option" data-amount="50000">50,000원</button>
+                <button class="btn-charge-option" data-amount="100000">100,000원</button>
+            </div>
+            <div class="custom-charge">
+                <input type="number" id="customAmount" placeholder="직접 입력" min="1000" step="1000">
+                <button id="confirmChargeBtn" class="btn-primary">충전하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
